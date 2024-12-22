@@ -84,13 +84,11 @@ LOCALE_ENCODING = locale.getpreferredencoding()
 
 
 def encode_for_locale(s):
-    """
-    Encode text items for system locale. If encoding fails, fall back to ASCII.
-    """
+    """Encode text items for system locale. If encoding fails, fall back to ASCII."""
     try:
-        return s.encode(LOCALE_ENCODING, 'ignore')
+        return s.encode(LOCALE_ENCODING, "ignore")
     except (AttributeError, UnicodeDecodeError):
-        return s.decode('ascii', 'ignore').encode(LOCALE_ENCODING)
+        return s.decode("ascii", "ignore").encode(LOCALE_ENCODING)
 
 POINT = ctypes.wintypes.POINT
 RECT = ctypes.wintypes.RECT

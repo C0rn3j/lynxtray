@@ -1,11 +1,83 @@
+import ctypes
 import os
-from .win32_adapter import *
 import threading
 import uuid
 
-class SysTrayIcon(object):
-    """
-    menu_options: tuple of tuples (menu text, menu icon path or None, function name)
+from .win32_adapter import (
+	COLOR_MENU,
+	COLOR_WINDOW,
+	CS_HREDRAW,
+	CS_VREDRAW,
+	CW_USEDEFAULT,
+	DI_NORMAL,
+	HANDLE,
+	IDC_ARROW,
+	IDI_APPLICATION,
+	IMAGE_ICON,
+	LOWORD,
+	LPARAM,
+	LPFN_WNDPROC,
+	LR_LOADFROMFILE,
+	NIF_ICON,
+	NIF_MESSAGE,
+	NIF_TIP,
+	NIM_ADD,
+	NIM_DELETE,
+	NIM_MODIFY,
+	POINT,
+	RECT,
+	SM_CXSMICON,
+	SM_CYSMICON,
+	TPM_LEFTALIGN,
+	WM_CLOSE,
+	WM_COMMAND,
+	WM_DESTROY,
+	WM_LBUTTONDBLCLK,
+	WM_LBUTTONUP,
+	WM_NULL,
+	WM_RBUTTONUP,
+	WM_USER,
+	WNDCLASS,
+	WPARAM,
+	WS_OVERLAPPED,
+	WS_SYSMENU,
+	CreateCompatibleBitmap,
+	CreateCompatibleDC,
+	CreatePopupMenu,
+	CreateWindowEx,
+	DefWindowProc,
+	DeleteDC,
+	DestroyIcon,
+	DestroyWindow,
+	DrawIconEx,
+	FillRect,
+	GetCursorPos,
+	GetDC,
+	GetModuleHandle,
+	GetSysColorBrush,
+	GetSystemMetrics,
+	InsertMenuItem,
+	LoadCursor,
+	LoadIcon,
+	LoadImage,
+	NotifyData,
+	PackMENUITEMINFO,
+	PostMessage,
+	PostQuitMessage,
+	PumpMessages,
+	RegisterClass,
+	RegisterWindowMessage,
+	SelectObject,
+	SetForegroundWindow,
+	Shell_NotifyIcon,
+	TrackPopupMenu,
+	UpdateWindow,
+	encode_for_locale,
+)
+
+
+class SysTrayIcon:
+    """menu_options: tuple of tuples (menu text, menu icon path or None, function name)
 
     menu text and tray hover text should be Unicode
     hover_text length is limited to 128; longer text will be truncated
@@ -19,14 +91,14 @@ class SysTrayIcon(object):
                 do_something(item)
 
     """
-    QUIT = 'QUIT'
+    QUIT = "QUIT"
     SPECIAL_ACTIONS = [QUIT]
 
     FIRST_ID = 1023
 
     def __init__(self,
                  icon,
-                 hover_text,
+                 hover_text: str,
                  menu_options=None,
                  on_quit=None,
                  default_menu_index=None,
@@ -38,13 +110,13 @@ class SysTrayIcon(object):
         self._on_quit = on_quit
 
         menu_options = menu_options or ()
-        menu_options = menu_options + (('Quit', None, SysTrayIcon.QUIT),)
+        menu_options = menu_options + (("Quit", None, SysTrayIcon.QUIT),)
         self._next_action_id = SysTrayIcon.FIRST_ID
         self._menu_actions_by_id = set()
         self._menu_options = self._add_ids_to_menu_options(list(menu_options))
         self._menu_actions_by_id = dict(self._menu_actions_by_id)
 
-        window_class_name = window_class_name or ("SysTrayIconPy-%s" % (str(uuid.uuid4())))
+        window_class_name = window_class_name or (f"SysTrayIconPy-{uuid.uuid4()!s}")
 
         self._default_menu_index = (default_menu_index or 0)
         self._window_class_name = encode_for_locale(window_class_name)
@@ -106,23 +178,23 @@ class SysTrayIcon(object):
         UpdateWindow(self._hwnd)
         self._refresh_icon()
 
-    def _message_loop_func(self):
+    def _message_loop_func(self) -> None:
         self._create_window()
         PumpMessages()
 
-    def start(self):
+    def start(self) -> None:
         if self._hwnd:
             return      # already started
         self._message_loop_thread = threading.Thread(target=self._message_loop_func)
         self._message_loop_thread.start()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if not self._hwnd:
             return      # not started
         PostMessage(self._hwnd, WM_CLOSE, 0, 0)
         self._message_loop_thread.join()
 
-    def update(self, icon=None, hover_text=None):
+    def update(self, icon=None, hover_text=None) -> None:
         """ update icon image and/or hover text """
         if icon:
             self._icon = icon
@@ -131,7 +203,7 @@ class SysTrayIcon(object):
             self._hover_text = hover_text
         self._refresh_icon()
 
-    def _add_ids_to_menu_options(self, menu_options):
+    def _add_ids_to_menu_options(self, menu_options) -> list:
         result = []
         for menu_option in menu_options:
             option_text, option_icon, option_action = menu_option
@@ -144,11 +216,11 @@ class SysTrayIcon(object):
                                self._add_ids_to_menu_options(option_action),
                                self._next_action_id))
             else:
-                raise Exception('Unknown item', option_text, option_icon, option_action)
+                raise Exception("Unknown item", option_text, option_icon, option_action)
             self._next_action_id += 1
         return result
 
-    def _load_icon(self):
+    def _load_icon(self) -> None:
         # release previous icon, if a custom one was loaded
         # note: it's important *not* to release the icon if we loaded the default system icon (with
         # the LoadIcon function) - this is why we assign self._hicon only if it was loaded using LoadImage
@@ -171,7 +243,7 @@ class SysTrayIcon(object):
             self._icon_shared = True
             self._icon = None
 
-    def _refresh_icon(self):
+    def _refresh_icon(self) -> None:
         if self._hwnd is None:
             return
         if self._hicon == 0:
@@ -188,10 +260,10 @@ class SysTrayIcon(object):
                           self._hover_text)
         Shell_NotifyIcon(message, ctypes.byref(self._notify_id))
 
-    def _restart(self, hwnd, msg, wparam, lparam):
+    def _restart(self, hwnd, msg, wparam, lparam) -> None:
         self._refresh_icon()
 
-    def _destroy(self, hwnd, msg, wparam, lparam):
+    def _destroy(self, hwnd, msg, wparam, lparam) -> None:
         if self._on_quit:
             self._on_quit(self)
         nid = NotifyData(self._hwnd, 0)
@@ -204,7 +276,7 @@ class SysTrayIcon(object):
         self._hwnd = None
         self._notify_id = None
 
-    def _notify(self, hwnd, msg, wparam, lparam):
+    def _notify(self, hwnd, msg, wparam, lparam) -> bool:
         if lparam == WM_LBUTTONDBLCLK:
             self._execute_menu_option(self._default_menu_index + SysTrayIcon.FIRST_ID)
         elif lparam == WM_RBUTTONUP:
@@ -213,7 +285,7 @@ class SysTrayIcon(object):
             pass
         return True
 
-    def _show_menu(self):
+    def _show_menu(self) -> None:
         if self._menu is None:
             self._menu = CreatePopupMenu()
             self._create_menu(self._menu, self._menu_options)
@@ -232,7 +304,7 @@ class SysTrayIcon(object):
                        None)
         PostMessage(self._hwnd, WM_NULL, 0, 0)
 
-    def _create_menu(self, menu, menu_options):
+    def _create_menu(self, menu, menu_options) -> None:
         for option_text, option_icon, option_action, option_id in menu_options[::-1]:
             if option_icon:
                 option_icon = self._prep_menu_icon(option_icon)
@@ -274,18 +346,18 @@ class SysTrayIcon(object):
 
         return hbm
 
-    def _command(self, hwnd, msg, wparam, lparam):
+    def _command(self, hwnd, msg, wparam, lparam) -> None:
         id = LOWORD(wparam)
         self._execute_menu_option(id)
 
-    def _execute_menu_option(self, id):
+    def _execute_menu_option(self, id: int) -> None:
         menu_action = self._menu_actions_by_id[id]
         if menu_action == SysTrayIcon.QUIT:
             DestroyWindow(self._hwnd)
         else:
             menu_action(self)
 
-def non_string_iterable(obj):
+def non_string_iterable(obj) -> bool:
     try:
         iter(obj)
     except TypeError:

@@ -1,6 +1,6 @@
 [project]
 	name = "lynxtray"
-	version = "0.2.1"
+	version = "0.2.2"
 	authors = [
 		{ name="Martin Rys", email="martin@rys.rs" },
 	]
