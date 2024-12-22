@@ -1,13 +1,13 @@
-# `systray` [![](https://img.shields.io/pypi/v/systray)](https://pypi.org/project/systray/)
+# `lynxtray` [![](https://img.shields.io/pypi/v/lynxtray)](https://pypi.org/project/lynxtray/)
 
 This module implements a Windows system tray icon with a right-click context menu.
 
 ## Installation
 
-To install systray, run:
+To install lynxtray, run:
 
 ```
-pip install systray
+pip install lynxtray
 ```
 
 Alternatively, you can use easy_install.
@@ -17,9 +17,9 @@ Alternatively, you can use easy_install.
 Creating an icon with one option in the context menu:
 
 ```python
-from systray import SysTrayIcon
+from lynxtray import SysTrayIcon
 def say_hello(systray: SysTrayIcon) -> None:
-	print "Hello, World!"
+	print("Hello, World!")
 menu_options = (("Say Hello", None, say_hello),)
 systray = SysTrayIcon("icon.ico", "Example tray icon", menu_options)
 systray.start()
@@ -79,7 +79,7 @@ It is possible to create sub-menus in the context menu by recursively passing a 
 value of an option, instead of passing a callback function. e.g.
 
 ```python
-from systray import SysTrayIcon
+from lynxtray import SysTrayIcon
 hover_text = "SysTrayIcon Demo"
 def hello(sysTrayIcon: SysTrayIcon) -> None:
 	print("Hello World.")
@@ -109,15 +109,6 @@ This module can only be used in Windows systems, otherwise the import statement 
 
 This module is adapted from an implementation by Simon Brunning, which in turn was adapted from Mark Hammond's
 win32gui_taskbar.py and win32gui_menu.py demos from PyWin32.
-
-# Checking out the code
-
-To run this code from the repository for development purposes, run the following:
-
-```
-easy_install -U infi.projector
-projector devenv build
-```
 
 ## Installation
 

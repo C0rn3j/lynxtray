@@ -1,6 +1,6 @@
 [project]
-	name = "systray"
-	version = "0.2.0"
+	name = "lynxtray"
+	version = "0.2.1"
 	authors = [
 		{ name="Martin Rys", email="martin@rys.rs" },
 	]
@@ -24,8 +24,8 @@
 	]
 
 [project.urls]
-	Homepage = "https://github.com/C0rn3j/systray"
-	Issues = "https://github.com/C0rn3j/systray/issues"
+	Homepage = "https://github.com/C0rn3j/lynxtray"
+	Issues = "https://github.com/C0rn3j/lynxtray/issues"
 
 [build-system]
 	requires = ["hatchling"]
