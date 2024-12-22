@@ -10,8 +10,6 @@ To install lynxtray, run:
 pip install lynxtray
 ```
 
-Alternatively, you can use easy_install.
-
 ## Usage
 
 Creating an icon with one option in the context menu:
@@ -109,8 +107,6 @@ This module can only be used in Windows systems, otherwise the import statement 
 
 This module is adapted from an implementation by Simon Brunning, which in turn was adapted from Mark Hammond's
 win32gui_taskbar.py and win32gui_menu.py demos from PyWin32.
-
-## Installation
 
 ## Development docs
 
