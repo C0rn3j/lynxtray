@@ -1,13 +1,13 @@
-# `infi.systray` [![](https://img.shields.io/pypi/v/infi.systray)](https://pypi.org/project/infi.systray/)
+# `systray` [![](https://img.shields.io/pypi/v/systray)](https://pypi.org/project/systray/)
 
 This module implements a Windows system tray icon with a right-click context menu.
 
 ## Installation
 
-To install infi.systray, run:
+To install systray, run:
 
 ```
-pip install infi.systray
+pip install systray
 ```
 
 Alternatively, you can use easy_install.
@@ -17,9 +17,9 @@ Alternatively, you can use easy_install.
 Creating an icon with one option in the context menu:
 
 ```python
-from infi.systray import SysTrayIcon
-def say_hello(systray):
-    print "Hello, World!"
+from systray import SysTrayIcon
+def say_hello(systray: SysTrayIcon) -> None:
+	print "Hello, World!"
 menu_options = (("Say Hello", None, say_hello),)
 systray = SysTrayIcon("icon.ico", "Example tray icon", menu_options)
 systray.start()
@@ -34,8 +34,8 @@ The icon and/or hover text can be updated using the update() method with the app
 
 ```python
 for item in ['item1', 'item2', 'item3']:
-    systray.update(hover_text=item)
-    do_something(item)
+	systray.update(hover_text=item)
+	do_something(item)
 ```
 
 To destroy the icon when the program ends, call
@@ -48,17 +48,17 @@ SysTrayIcon can be used as a context manager to start and shutdown the tray, whi
 
 ```python
 with SysTrayIcon(icon, hover_text) as systray:
-    for item in ['item1', 'item2', 'item3']:
-        systray.update(hover_text=item)
-        do_something(item)
+	for item in ['item1', 'item2', 'item3']:
+		systray.update(hover_text=item)
+		do_something(item)
 ```
 
 A "Quit" command is always appended to the end of the icon context menu, after the menu options specified by the user.
 To perform operations when Quit is selected, pass "on_quit=callback" as a parameter, e.g.:
 
 ```python
-def on_quit_callback(systray):
-    program.shutdown()
+def on_quit_callback(systray: SysTrayIcon) -> None:
+	program.shutdown()
 systray = SysTrayIcon("icon.ico", "Example tray icon", menu_options, on_quit=on_quit_callback)
 ```
 
@@ -79,22 +79,21 @@ It is possible to create sub-menus in the context menu by recursively passing a 
 value of an option, instead of passing a callback function. e.g.
 
 ```python
-from infi.systray import SysTrayIcon
+from systray import SysTrayIcon
 hover_text = "SysTrayIcon Demo"
-def hello(sysTrayIcon):
-    print "Hello World."
-def simon(sysTrayIcon):
-    print "Hello Simon."
-def bye(sysTrayIcon):
-    print 'Bye, then.'
-def do_nothing(sysTrayIcon):
-    pass
-menu_options = (('Say Hello', "hello.ico", hello),
-                ('Do nothing', None, do_nothing),
-                ('A sub-menu', "submenu.ico", (('Say Hello to Simon', "simon.ico", simon),
-                                               ('Do nothing', None, do_nothing),
-                                              ))
-               )
+def hello(sysTrayIcon: SysTrayIcon) -> None:
+	print("Hello World.")
+def simon(sysTrayIcon: SysTrayIcon) -> None:
+	print("Hello Simon.")
+def bye(sysTrayIcon: SysTrayIcon) -> None:
+	print("Bye, then.")
+def do_nothing(sysTrayIcon: SysTrayIcon) -> None:
+	pass
+menu_options = (
+	('Say Hello', "hello.ico", hello),
+	('Do nothing', None, do_nothing),
+	('A sub-menu', "submenu.ico", (('Say Hello to Simon', "simon.ico", simon), ('Do nothing', None, do_nothing)))
+)
 sysTrayIcon = SysTrayIcon("main.ico", hover_text, menu_options, on_quit=bye, default_menu_index=1)
 sysTrayIcon.start()
 ```
@@ -118,4 +117,41 @@ To run this code from the repository for development purposes, run the following
 ```
 easy_install -U infi.projector
 projector devenv build
+```
+
+## Installation
+
+## Development docs
+
+https://packaging.python.org/en/latest/tutorials/packaging-projects/
+
+### Build
+
+```shell
+python -m build
+```
+
+### Install dev version
+
+```shell
+python -m pip install --user --break-system-packages .
+```
+
+### Upload to PyPI
+
+First build the package as per Build.
+
+Then create the config file `~/.pypirc`:
+```ini
+[pypi]
+	username = __token__
+	password = pypi-ABCDEFGHTOKEN
+```
+
+Then upload the package:
+```shell
+# Testing PyPI
+python -m twine upload --repository testpypi dist/*
+# Prod PyPI
+python -m twine upload dist/*
 ```
